@@ -1,0 +1,94 @@
+<h1>This is contact page</h1>
+<p>Add New Registration go</p>
+
+<div class="container">
+  <h4>Contact list</h4>
+  <div class="'mb-3">
+    <form action="/contact" method="POST">
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" required>
+
+        <label for="number">Number:</label>
+        <input type="text" id="number" name="number" required>
+
+        <label for="email">email:</label>
+        <input type="email" id="email" name="email" required>
+
+        <input type="submit" class="btn btn-success" value="Add Contact">
+    </form>
+  </div>
+  <table class="table">
+      <thead>
+          <tr>
+              <th>Name</th>
+              <th>Action</th>
+          </tr>
+            <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+            <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+      </thead>
+      <tbody>
+          <% if (contact.length < 0) { %>
+              <tr>
+                  <td colspan="2">Contact data is empty</td>
+              </tr>
+          <% } else { %>
+              <% contact.forEach(contact => { %>
+                  <tr>
+                      <td><%= contact.name %></td>
+                      <td>
+                          <form action="/contacts/delete" method="POST" style="display:inline;">
+                              <input type="hidden" name="name" value="<%= contact.name %>">
+                              <button type="submit" class="btn btn-danger">Delete</button>
+                          </form>
+                          <form action="/contacts/edit/<%= contact.name %>" method="GET" style="display:inline;">
+                              <input type="hidden" name="name" value="<%= contact.name %>">
+                              <button type="submit" class="btn btn-primary">Detail</button>
+                          </form>
+                      </td>
+                  </tr>
+              <% }) %>
+          <% } %>
+      </body>
+  </table>
+</div>
+
+
+
+
+
+
+<!-- contact.ejs dan contact.json harus sama namanya -->
+    <!-- <form action="/contact" method="POST">
+        <label for="name">Name:</label><br>
+        <input type="text" id="name" name="name" required><br><br>
+
+        <label for="number">Number:</label><br>
+        <input type="text" id="number" name="number" required><br><br>
+
+        <label for="email">email:</label><br>
+        <input type="email" id="email" name="email" required><br><br>
+
+        <input type="submit" value="Add Contact">
+    </form>
+    <h4>Contact list</h4>
+    <% if (contact.lengt < 0) { %>
+        <p>Contact data is empyt</p>
+        <% } else { %>
+            <ul>
+    <% contact.forEach(contact => { %>
+        <li>
+          Name: <%= contact.name %>
+          <form action="/contacts/delete" method="POST" style="display:inline;">
+            <input type="hidden" name="name" value="<%= contact.name %>">
+            <button type="submit">Delete</button>
+          </form>
+          <form action="/contacts/edit/<%= contact.name %>" method="GET" style="display:inline;">
+            <input type="hidden" name="name" value="<%= contact.name %>">
+            <button type="submit">Detail</button>
+          </form>
+        </li>
+    <% }) %>
+    </ul>
+  <% } %>
+</body>
+</html> -->
