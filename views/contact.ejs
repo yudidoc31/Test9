@@ -52,43 +52,14 @@
   </table>
 </div>
 
-
-
-
-
-
-<!-- contact.ejs dan contact.json harus sama namanya -->
-    <!-- <form action="/contact" method="POST">
-        <label for="name">Name:</label><br>
-        <input type="text" id="name" name="name" required><br><br>
-
-        <label for="number">Number:</label><br>
-        <input type="text" id="number" name="number" required><br><br>
-
-        <label for="email">email:</label><br>
-        <input type="email" id="email" name="email" required><br><br>
-
-        <input type="submit" value="Add Contact">
-    </form>
-    <h4>Contact list</h4>
-    <% if (contact.lengt < 0) { %>
-        <p>Contact data is empyt</p>
-        <% } else { %>
-            <ul>
-    <% contact.forEach(contact => { %>
-        <li>
-          Name: <%= contact.name %>
-          <form action="/contacts/delete" method="POST" style="display:inline;">
-            <input type="hidden" name="name" value="<%= contact.name %>">
-            <button type="submit">Delete</button>
-          </form>
-          <form action="/contacts/edit/<%= contact.name %>" method="GET" style="display:inline;">
-            <input type="hidden" name="name" value="<%= contact.name %>">
-            <button type="submit">Detail</button>
-          </form>
-        </li>
-    <% }) %>
-    </ul>
-  <% } %>
-</body>
-</html> -->
+<!-- tambahan/referensi dari Pak Kunto -->
+<!-- async function loadContact() {
+	try {
+		const { rows: contacts } = await pool.query
+			`SELECT name, mobile FROM contacts`
+			);
+			return contacts;
+			} catch (err) {
+console.error(err.mesagge);
+			}
+	} -->
