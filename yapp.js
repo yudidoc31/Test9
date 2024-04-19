@@ -9,7 +9,7 @@ const yargs = require('yargs')
 const PORT = 3001
 const app = express();
 const bodyParser = require('body-parser')
-const { Pool } = require('pg');
+const { Pool } = require('pg');//menankap postgreSQL dan memasukkannya ke posGreS
 // Konfigurasi koneksi ke database PostgreSQL
 const pool = new Pool({
     user: 'postgres', // username PostgreSQL
@@ -21,6 +21,7 @@ const pool = new Pool({
 
 const expressLayouts = require('express-ejs-layouts');
 const { name } = require('ejs');
+const { error } = require('console');
 // middleware
     app.set('view engine', 'ejs');
     app.use(express.static('images'));
@@ -29,7 +30,6 @@ const { name } = require('ejs');
 
     app.use(bodyParser.urlencoded({ extended: true}));
     app.set('layout', 'layout/layout.ejs');
-
 
       app.use(bodyParser.urlencoded({ extended: true}));
 
@@ -40,6 +40,26 @@ const { name } = require('ejs');
       app.get('/about', (req, res) => {//ambil data di file html yg sudah jadi format ejs dan kirim data lalu kembailikan ke web supaya-
               res.render('about', { title:'page' });//index.ejs ditampilkan  web dengan mengklik about lalu menampilkan halaman about
             });
+
+const checkInput = async(contact, prevName='') => {//membuat variabel pengecekkan input contact, dengan-
+    const errors = [];
+    lowercaseName = contact.name.toLowerCase();
+    const client = await pool.connect();
+    const result = await client.query('SELECT name FROM contacts WHERE LOWER(name) = $1', [lowercaseName]);
+    const existingContact = result.rows[0];
+    if (contact.name !== prevName && existingContact) {
+        console.log(`Kontak dengan nama "${contact.name}"`);
+        errors.push('Kontak dengan nama tersebut sudah ada');
+    }
+        if (!validator.isMobilePhone(contact.number, 'id-ID')) {
+        errors.push('Format nomor telepon salah.')
+        }
+        if (contact.email && !validator.isEmail(contact.email)) {
+        errors.push('Format email salah.')
+        }
+        return errors;
+    }
+
 // GET - Mengambil semua kontak dari database
 app.get('/contact', async (req, res) => {
     try {
@@ -47,7 +67,7 @@ app.get('/contact', async (req, res) => {
         const result = await client.query('SELECT * FROM contacts');
         const contacts = result.rows;
         client.release();
-        res.render('contact', { contact: contacts, title: 'Contact page' });
+        res.render('contact', { contact: contacts, title: 'Contact page', validationResult:[]});
     } catch (err) {
         console.error(err);
         res.status(500).send('Internal server error');
@@ -61,42 +81,31 @@ app.post('/contact', async (req, res) => {
         number: req.body.number,
         email: req.body.email,
     };
-    const checkInput = (contact) => {//membuat variabel pengecekkan input contact, dengan-
-              if (!contact.name || !contact.number || !contact.email) {//kalau contact name,number,email 
-                  return { isValid: false, message: 'Semua bidang harus diisi.' };
-              }
-              if (!validator.isMobilePhone(contact.number, 'id-ID')) {
-                  return { isValid: false, message: 'Format nomor telepon salah.' };
-              }
-              if (!validator.isEmail(contact.email)) {
-                  return { isValid: false, message: 'Format email salah.' };
-              }
-              return { isValid: true, message: 'Input valid.' };
-          }
-
+    
     // Validasi input
-    const validationResult = checkInput(newContact);
-    if (!validationResult.isValid) {
-        console.log('Kesalahan input:', validationResult.message);
-        return res.status(400).send(validationResult.message);
-    }
-
     try {
+        const validationResult = await checkInput(newContact);
         const client = await pool.connect();
-        const result = await client.query('SELECT * FROM contacts WHERE name = $1 OR number = $2 OR email = $3', [newContact.name, newContact.number, newContact.email]);
-        const existingContact = result.rows[0];
-        if (existingContact) {
-            console.log(`Kontak dengan nama "${newContact.name}" atau nomor atau email tersebut sudah ada.`);
-            return res.status(400).send('Kontak dengan nama, nomor atau email tersebut sudah ada, Mohon masukkan Nama, No telephone atau Email yang baru.');
+        if(validationResult.length == 0) {
+            await client.query('INSERT INTO contacts (name, number, email) VALUES ($1, $2, $3)', [newContact.name, newContact.number, newContact.email]);
+            // client.release();
+            console.log(`Kontak dengan nama "${newContact.name}" berhasil ditambahkan.`);
+            return res.redirect('/contact');
         }
+        console.log(validationResult);
+        const result = await client.query('SELECT * FROM contacts');
+        const contact = result.rows;
 
-        await client.query('INSERT INTO contacts (name, number, email) VALUES ($1, $2, $3)', [newContact.name, newContact.number, newContact.email]);
-        client.release();
-        console.log(`Kontak dengan nama "${newContact.name}" berhasil ditambahkan.`);
-        res.redirect('/contact');
+        const data = {
+            name: req.body.name,
+            number: req.body.number,
+            email: req.body.email,
+        };
+        res.render('contact.ejs', {contact, title: 'Add new contact', validationResult, data})
     } catch (err) {
         console.error(err);
-        res.status(500).send('Internal server error');
+        res.status(500)
+        // res.render('contact', { contact: contacts, title: 'Contact page', error: validationResult });
     }
 });
 
@@ -121,7 +130,7 @@ app.post('/contacts/delete', async (req, res) => {
     }
 });
 
-// GET - Mengambil data kontak untuk diedit dari database
+// GET - Mengedit data dari database
 app.get('/contacts/edit/:prevName', async (req, res) => {
     const prevName = req.params.prevName;
     const name = req.query.name;
@@ -135,7 +144,7 @@ app.get('/contacts/edit/:prevName', async (req, res) => {
             return res.status(404).send(`Kontak dengan nama "${name}" tidak ditemukan.`);
         }
         client.release();
-        res.render('edit', { contact, title: 'Edit Contact', prevName });
+        res.render('edit.ejs', { contact, title: 'Edit Contact', prevName, validationResult:[] });
     } catch (err) {
         console.error(err);
         res.status(500).send('Internal server error');
@@ -144,8 +153,8 @@ app.get('/contacts/edit/:prevName', async (req, res) => {
 
 // POST - Menyimpan perubahan kontak ke database
 app.post('/contacts/edit/:prevName', async (req, res) => {
-    const prevName = req.params.prevName;
-    const name = req.body.name;
+    const prevName = req.params.prevName
+    const name = req.body.name.toLocaleLowerCase();
     const updatedContact = {
         name: req.body.name,
         number: req.body.number,
@@ -153,14 +162,28 @@ app.post('/contacts/edit/:prevName', async (req, res) => {
     };
 
     try {
+        const validationResult = await checkInput(updatedContact,  prevName);
         const client = await pool.connect();
-        await client.query('UPDATE contacts SET name = $1, number = $2, email = $3 WHERE name = $4', [updatedContact.name, updatedContact.number, updatedContact.email, prevName]);
-        client.release();
-        console.log(`Kontak dengan nama "${prevName}" berhasil diperbarui.`);
-        res.redirect('/contact');
+        if(validationResult.length == 0) {
+            await client.query('UPDATE contacts SET name = $1, number = $2, email = $3 WHERE name = $4', [updatedContact.name, updatedContact.number, updatedContact.email, prevName]);
+            // client.release();
+            console.log(`Kontak dengan nama "${updatedContact.name}" berhasil ditambahkan.`);
+            return res.redirect('/contact');
+        }
+        console.log(validationResult);
+        const result = await client.query('SELECT * FROM contacts');
+        const contact = result.rows;
+
+        const data = {
+            name: req.body.name,
+            number: req.body.number,
+            email: req.body.email,
+        };
+        res.render('edit.ejs', {contact, title: 'Add new contact', prevName, validationResult, data})
+        // client.release();
     } catch (err) {
         console.error(err);
-        res.status(500).send('Internal server error');
+        res.status(500).send('Nama Kontak sudah ada');
     }
 });
 

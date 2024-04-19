@@ -4,7 +4,16 @@
 <div class="container">
   <h4>Contact list</h4>
   <div class="'mb-3">
-    <form action="/contact" method="POST">
+<ul>
+    <% if(validationResult){ %>
+        <% validationResult.forEach(element => { %>
+        <li>
+         <%= element %>
+        </li>
+        <% }) %>
+    <% } %>
+</ul>
+    <form action="/contact" method="POST" onload="addContactSukses()">
         <label for="name">Name:</label>
         <input type="text" id="name" name="name" required>
 
@@ -12,7 +21,7 @@
         <input type="text" id="number" name="number" required>
 
         <label for="email">email:</label>
-        <input type="email" id="email" name="email" required>
+        <input type="email" id="email" name="email">
 
         <input type="submit" class="btn btn-success" value="Add Contact">
     </form>
@@ -57,7 +66,9 @@
     function confirmDelete() {
         return confirm("Apa ingin dihapus");
     }
-
+    function confirmCreate() {
+        return confirm("Nama sudah ada")
+    }
 </script>
 
 
@@ -69,12 +80,12 @@
 
 <!-- tambahan/referensi dari Pak Kunto -->
 <!-- async function loadContact() {
-	try {
-		const { rows: contacts } = await pool.query
-			`SELECT name, mobile FROM contacts`
-			);
-			return contacts;
-			} catch (err) {
-console.error(err.mesagge);
-			}
-	} -->
+// 	try {
+// 		const { rows: contacts } = await pool.query
+// 			`SELECT name, mobile FROM contacts`
+// 			);
+// 			return contacts;
+// 			} catch (err) {
+// console.error(err.mesagge);
+// 			}
+// 	} -->

@@ -1,6 +1,15 @@
 <p>Welcome to contact page</p>
 <h2>Your detail only edit</h2>
 <h4>Edit Contact</h4>
+<ul>
+  <% if(validationResult){ %>
+      <% validationResult.forEach(element => { %>
+      <li>
+       <%= element %>
+      </li>
+      <% }) %>
+  <% } %>
+</ul>
     <form action="/contacts/edit/<%= prevName %>" method="POST">
         <label for="name">Name:</label>
         <input type="text" id="name" name="name" value="<%= contact.name %>" required>
