@@ -36,7 +36,7 @@
                   <tr>
                       <td><%= contact.name %></td>
                       <td>
-                          <form action="/contacts/delete" method="POST" style="display:inline;">
+                          <form action="/contacts/delete" method="POST" style="display:inline;" onsubmit="return confirmDelete()">
                               <input type="hidden" name="name" value="<%= contact.name %>">
                               <button type="submit" class="btn btn-danger">Delete</button>
                           </form>
@@ -51,6 +51,21 @@
       </body>
   </table>
 </div>
+
+
+<script>
+    function confirmDelete() {
+        return confirm("Apa ingin dihapus");
+    }
+
+</script>
+
+
+
+
+
+
+
 
 <!-- tambahan/referensi dari Pak Kunto -->
 <!-- async function loadContact() {

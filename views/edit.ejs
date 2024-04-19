@@ -2,14 +2,14 @@
 <h2>Your detail only edit</h2>
 <h4>Edit Contact</h4>
     <form action="/contacts/edit/<%= prevName %>" method="POST">
-        <label for="name">Name:</label><br>
-        <input type="text" id="name" name="name" required><br><br>
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" value="<%= contact.name %>" required>
 
-        <label for="number">Number:</label><br>
-        <input type="text" id="number" name="number" required><br><br>
+        <label for="number">Number:</label>
+        <input type="text" id="number" name="number" value="<%= contact.number %>" required>
 
-        <label for="email">email:</label><br>
-        <input type="email" id="email" name="email" required><br><br>
+        <label for="email">email:</label>
+        <input type="email" id="email" name="email" value="<%= contact.email %>">
 
         <input type="hidden" id="oldName" name="oldName" value="<%= contact.name %>">
 

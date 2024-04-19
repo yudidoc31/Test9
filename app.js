@@ -2,7 +2,7 @@ const express = require('express')
 
 const app = express()
 
-// const pool = require("./db")
+const pool = require("./db")
 
 const { Pool } = require('pg');
 
@@ -28,6 +28,5 @@ app.get("/addasync", async (req,res) => {
         console.error(err.message)
     }
 })
-app.listen(port,() => {
-    console.log(`Example app listening on port ${port}`)
-})
+
+module.exports = pool
